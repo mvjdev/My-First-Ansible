@@ -1,0 +1,60 @@
+# Contenu du fichier sites.j2
+<VirtualHost *:80>
+    ServerName www.hei.school
+
+    DocumentRoot /var/www/html/www.hei.school
+
+    ErrorLog ${APACHE_LOG_DIR}/www.hei.school_error.log
+    CustomLog ${APACHE_LOG_DIR}/www.hei.school_access.log combined
+
+    <Directory /var/www/html/www.hei.school>
+        Options Indexes FollowSymLinks
+        AllowOverride All
+        Require all granted
+    </Directory>
+</VirtualHost>
+
+<VirtualHost *:80>
+    ServerName back.hei.school
+
+    DocumentRoot /var/www/html/back.hei.school
+
+    ErrorLog ${APACHE_LOG_DIR}/back.hei.school_error.log
+    CustomLog ${APACHE_LOG_DIR}/back.hei.school_access.log combined
+
+    <Directory /var/www/html/back.hei.school>
+        Options Indexes FollowSymLinks
+        AllowOverride All
+        Require all granted
+    </Directory>
+</VirtualHost>
+
+<VirtualHost *:80>
+    ServerName front.hei.school
+
+    DocumentRoot /var/www/html/front.hei.school
+
+    ErrorLog ${APACHE_LOG_DIR}/front.hei.school_error.log
+    CustomLog ${APACHE_LOG_DIR}/front.hei.school_access.log combined
+
+    <Directory /var/www/html/front.hei.school>
+        Options Indexes FollowSymLinks
+        AllowOverride All
+        Require all granted
+    </Directory>
+</VirtualHost>
+
+<VirtualHost *:80>
+    ServerName api.hei.school
+
+    DocumentRoot /var/www/html/api.hei.school
+
+    ErrorLog ${APACHE_LOG_DIR}/api.hei.school_error.log
+    CustomLog ${APACHE_LOG_DIR}/api.hei.school_access.log combined
+
+    <Directory /var/www/html/api.hei.school>
+        Options Indexes FollowSymLinks
+        AllowOverride All
+        Require all granted
+    </Directory>
+</VirtualHost>

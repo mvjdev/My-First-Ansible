@@ -1,0 +1,21 @@
+- name: Création d'un utilisateur
+  user:
+    name: volibear
+    comment: "Mon user"
+    shell: /usr/bin/zsh
+  when: user is defined
+
+- name: Ajout de la clef SSH
+  when: user is defined
+  become: true
+  authorized_key:
+    user: "{{ user }}"
+    key: "{{ lookup('file', '/home/volibear/.ssh/my_key') }}"
+
+
+- name: "{{ user }} devient sudoers"
+  when: user is defined
+  template:
+    src: templates/sudoers.j2
+    dest: "/etc/sudoers.d/{{ user }}-sudoers"
+    validate: 'visudo -cf %s'

@@ -1,0 +1,134 @@
+# ---
+# INTSTALLATION GIT - VIM (Simplement)
+
+# - name: Installation des serveurs web
+#   hosts: web
+#   remote_user: root
+
+#   tasks:
+#     - name: Installation de Git
+#       become: yes
+#       become_user: root
+#       command: pacman --sync --refresh --noconfirm git
+
+
+#     - name: Installation de vim
+#       become: yes
+#       pacman:
+#         name: vim
+#         update_cache: yes
+# ...
+
+
+#TASK [Installation de Git, Vim, Htop et Zsh] 
+# Vous pouvez faire la commande 'htop' pour voir son fonctionnement
+# ---
+# - name: Installation des serveurs web
+#   hosts: web
+#   remote_user: root
+#   vars:
+
+#   tasks:
+#     - name: Installation de Git, Vim, Htop et Zsh
+#       become: yes
+#       become_user: root
+#       package:
+#         name:
+#           - git
+#           - vim
+#           - htop
+#           - zsh
+#         state: latest
+
+#     - name: Création d'un utilisateur
+#       user:
+#         name: "{{ user }}"
+#         comment: "Mon user"
+#         shell: /usr/bin/zsh
+#       when: user is defined
+
+#     - name: Ajout de la clef SSH
+#       when: user is defined
+#       authorized_key:
+#         user: "{{ user }}"
+#         key: "{{ lookup('file', '/home/{{ user }}/.ssh/id_rsa.pub') }}"
+
+#     - name: "{{ user }} devient sudoers"
+#       when: user is defined
+#       template:
+#         src: templates/sudoers.j2
+#         dest: "/etc/sudoers.d/{{ user }}-sudoers"
+#         validate: 'visudo -cf %s'
+# ...
+
+
+---
+- name: Installation des serveurs web
+  hosts: web
+  remote_user: root
+  vars:
+    user: volibear
+    domain: local.dev
+
+  become: yes
+  become_method: sudo
+
+  roles:
+    - utils
+    - user
+    - apache2
+
+- name: Installation des serveurs web
+  hosts: web
+  remote_user: root
+
+  become: yes
+  become_method: sudo
+
+  roles:
+    - utils
+
+  tasks:
+    - name: Create directories for subdomains
+      file:
+        path: "/var/www/html/{{ item }}"
+        state: directory
+        owner: www-data
+        group: www-data
+        mode: 0755
+      loop:
+        - www.hei.school
+        - back.hei.school
+        - front.hei.school
+        - api.hei.school
+      notify: Restart Apache
+
+    - name: Create Apache virtual host configurations for subdomains
+      template:
+        src: "{{ item }}.conf.j2"
+        dest: "/etc/apache2/sites-available/{{ item }}.conf"
+        owner: root
+        group: root
+        mode: 0644
+      loop:
+        - www.hei.school
+        - back.hei.school
+        - front.hei.school
+        - api.hei.school
+      notify: Restart Apache
+
+  handlers:
+    - name: Restart Apache
+      service:
+        name: apache2
+        state: restarted
+
+    - name: Copier le fichier de configuration des sites
+      template:
+        src: templates/sites.j2
+        dest: /etc/apache2/sites-available/sites.conf
+        owner: root
+        group: root
+        mode: 0644
+      notify: Reload Apache
+...

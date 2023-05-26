@@ -1,0 +1,22 @@
+
+---
+- name: Installer Git, Vim, Htop et Zsh
+  become: yes
+  package:
+    name:
+      - git
+      - vim
+      - htop
+      - zsh
+    state: latest
+
+- name: Installer Git, Vim, Htop et Zsh
+  package:
+    name: "{{ item }}"
+    state: latest
+  loop:
+    - git
+    - vim
+    - htop
+    - zsh
+...

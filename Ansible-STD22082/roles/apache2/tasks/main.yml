@@ -1,0 +1,54 @@
+---
+    - name: Installation d'Apache2 sur Manjaro
+      become: yes
+      package:
+        name: apache
+        state: latest
+
+    - name: Start
+      become: yes
+      service:
+        name: httpd
+        state: started
+        enabled: true
+
+    - name: Supprimer default.conf
+      become: yes
+      file:
+        path: /etc/httpd/conf.d/default.conf
+        state: absent
+
+    - name: Redémarrer apache2
+      become: yes
+      service:
+        name: httpd
+        state: reloaded
+
+    - name: Create directories for subdomains
+      file:
+        path: "/var/www/html/{{ item }}"
+        state: directory
+        owner: www-data
+        group: www-data
+        mode: 0755
+      loop:
+        - www.hei.school
+        - back.hei.school
+        - front.hei.school
+        - api.hei.school
+      notify: Restart Apache
+
+    - name: Create Apache virtual host configurations for subdomains
+      template:
+        src: "{{ item }}.conf.j2"
+        dest: "/etc/apache2/sites-available/{{ item }}.conf"
+        owner: root
+        group: root
+        mode: 0644
+      loop:
+        - www.hei.school
+        - back.hei.school
+        - front.hei.school
+        - api.hei.school
+      notify: Restart Apache
+...
